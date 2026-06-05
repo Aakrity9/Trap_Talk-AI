@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+:root {
+  /* Backgrounds */
+  --bg-primary: #000000;
+  --bg-secondary: #050805;
+  --bg-panel: rgba(5, 8, 5, 0.85);
+  --bg-panel-header: rgba(0, 255, 51, 0.05);
+
+  /* Accents & Borders */
+  --accent-neon-green: #00ff33;
+  --accent-glow-green: rgba(0, 255, 51, 0.4);
+  --accent-muted-green: #1a6b28;
+  --accent-dark-green: #08210d;
+  
+  /* State Colors */
+  --state-alert-red: #ff3333;
+  --state-alert-glow: rgba(255, 51, 51, 0.3);
+  --state-active-cyan: #00e5ff;
+  --state-active-glow: rgba(0, 229, 255, 0.3);
+  --state-warning-amber: #ffb300;
+
+  /* Typography Colors */
+  --text-primary: #00ff33;
+  --text-secondary: #a3e2ad;
+  --text-muted: #4e8056;
+  --text-white: #ffffff;
+  --text-dark: #001202;
+
+  /* Grid & UI Effects */
+  --grid-line-color: rgba(0, 255, 51, 0.04);
+  --grid-subline-color: rgba(0, 255, 51, 0.015);
+}
+
+@theme {
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-panel: var(--bg-panel);
+  --color-bg-panel-header: var(--bg-panel-header);
+
+  --color-accent-neon: var(--accent-neon-green);
+  --color-accent-glow: var(--accent-glow-green);
+  --color-accent-muted: var(--accent-muted-green);
+  --color-accent-dark: var(--accent-dark-green);
+
+  --color-state-red: var(--state-alert-red);
+  --color-state-cyan: var(--state-active-cyan);
+  --color-state-amber: var(--state-warning-amber);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-white: var(--text-white);
+  --color-text-dark: var(--text-dark);
+
+  --font-orbitron: var(--font-orbitron), sans-serif;
+  --font-share-tech: var(--font-share-tech-mono), monospace;
+  --font-mono: var(--font-jetbrains-mono), monospace;
+}
+
+/* Base resets and custom defaults */
+html, body {
+  background-color: var(--bg-primary);
+  color: var(--text-secondary);
+  font-family: var(--font-jetbrains-mono), monospace;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* Scanline and CRT effects */
+.crt-effect {
+  position: relative;
+}
+
+.crt-effect::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+              linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Background grid canvas */
+.hud-canvas {
+  background-color: var(--bg-primary);
+  background-image: 
+    linear-gradient(var(--grid-line-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line-color) 1px, transparent 1px),
+    linear-gradient(var(--grid-subline-color) 0.5px, transparent 0.5px),
+    linear-gradient(90deg, var(--grid-subline-color) 0.5px, transparent 0.5px);
+  background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  position: relative;
+}
+
+/* Blinking cursor animations */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.caret-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* Glow effects */
+.glow-text-green {
+  text-shadow: 0 0 5px rgba(0, 255, 51, 0.7);
+}
+
+.glow-text-cyan {
+  text-shadow: 0 0 5px rgba(0, 229, 255, 0.7);
+}
+
+.glow-text-red {
+  text-shadow: 0 0 5px rgba(255, 51, 51, 0.7);
+}
+
+.glow-border-green {
+  box-shadow: 0 0 10px rgba(0, 255, 51, 0.15);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(8, 33, 13, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-muted-green);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-neon-green);
+}
