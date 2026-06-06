@@ -1,0 +1,25 @@
+{
+    "short_name": "TrapTalk AI",
+    "name": "TrapTalk AI - Anti-Scam Honeypot",
+    "icons": [
+        {
+            "src": "favicon.ico",
+            "sizes": "64x64 32x32 24x24 16x16",
+            "type": "image/x-icon"
+        }
+    ],
+    "start_url": "/",
+    "background_color": "#000000",
+    "theme_color": "#00FF00",
+    "display": "standalone",
+    "orientation": "portrait",
+    "share_target": {
+        "action": "/api/share",
+        "method": "GET",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url"
+        }
+    }
+}

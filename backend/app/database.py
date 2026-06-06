@@ -1,3 +1,4 @@
+# pyrefly: ignore [missing-import]
 from sqlmodel import SQLModel, create_engine, Session as DBSession
 from app.config import settings
 

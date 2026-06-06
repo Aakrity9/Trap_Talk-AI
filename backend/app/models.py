@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import List, Optional, Dict, Any
+# pyrefly: ignore [missing-import]
 from sqlmodel import SQLModel, Field, Relationship, Column, JSON
 
 class Session(SQLModel, table=True):

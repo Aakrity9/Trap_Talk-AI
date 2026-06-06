@@ -23,6 +23,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "TrapTalk AI // Tactical Honeypot Console",
   description: "API-first agentic scam honeypot system & analytical dashboard.",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
