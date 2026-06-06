@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import DiagnosticsPanel from "@/components/DiagnosticsPanel";
 import ChatTerminal from "@/components/ChatTerminal";
 import IntelligencePanel from "@/components/IntelligencePanel";
@@ -27,7 +28,7 @@ interface IntelligenceData {
 export default function Home() {
   const [systemTime, setSystemTime] = useState("");
   const [sessionId, setSessionId] = useState("");
-  
+
   // App States
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [intelligence, setIntelligence] = useState<IntelligenceData>({
@@ -42,15 +43,27 @@ export default function Home() {
   const [scamCategory, setScamCategory] = useState<string | null>(null);
   const [scamDetected, setScamDetected] = useState(false);
   const [sessionStatus, setSessionStatus] = useState("idle"); // idle, active, completed
-  
+
   // UX / Loading States
   const [isLoading, setIsLoading] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const [callbackSuccess, setCallbackSuccess] = useState<boolean | null>(null);
-  
+
   // Logs & Orchestrator States
   const [logs, setLogs] = useState<string[]>([]);
   const [oodaState, setOodaState] = useState<"observe" | "orient" | "decide" | "act" | "idle">("idle");
+  const searchParams = useSearchParams();
+  const sharedText = searchParams.get("shared_text");
+
+  useEffect(() => {
+    if (sharedText) {
+      const decodedText = decodeURIComponent(sharedText);
+      addLog(`PWA SHARE TARGET CAPTURED: "${decodedText.substring(0, 30)}..."`);
+
+
+      handleSendMessage(decodedText);
+    }
+  }, [sharedText]);
 
   // Clock synchronization
   useEffect(() => {
@@ -60,11 +73,11 @@ export default function Home() {
     };
     updateTime();
     const timer = setInterval(updateTime, 1000);
-    
+
     // Generate new Session ID
     const randomId = "session-" + Math.random().toString(36).substring(2, 11).toUpperCase();
     setSessionId(randomId);
-    
+
     return () => clearInterval(timer);
   }, []);
 
@@ -76,14 +89,14 @@ export default function Home() {
   // Submit messages to backend
   const handleSendMessage = async (text: string) => {
     if (!sessionId) return;
-    
+
     // 1. Save Scammer message locally first
     const scammerMsg: ChatMessage = {
       sender: "scammer",
       text: text,
       timestamp: Date.now()
     };
-    
+
     const updatedMessages = [...messages, scammerMsg];
     setMessages(updatedMessages);
     setSessionStatus("active");
@@ -93,12 +106,12 @@ export default function Home() {
     // OODA State: OBSERVE -> ORIENT
     setOodaState("observe");
     addLog(`OBSERVING SCAMMER INBOUND: "${text.substring(0, 40)}..."`);
-    
+
     try {
       // Transition to Orient
       setOodaState("orient");
       addLog("ORIENTING PACKET METADATA & PARSING ENTITIES...");
-      
+
       // Structure request payload matching backend schema
       // Format conversation history to match MessageHistoryObject
       const apiHistory = messages
@@ -139,23 +152,23 @@ export default function Home() {
       }
 
       const responseData = await res.json();
-      
+
       // OODA State: DECIDE
       setOodaState("decide");
       addLog("DECIDING THREAT WEIGHTS & RETRIEVING PERSONA PROMPTS...");
-      
+
       // Query current session details from backend to update state panels
       const sessionRes = await fetch(`${API_BASE_URL}/api/v1/sessions/${sessionId}/report`, {
         headers: {
           "x-api-key": DEMO_API_KEY
         }
       });
-      
+
       if (sessionRes.ok) {
         const sessionReport = await sessionRes.json();
         setRiskScore(sessionReport.scamDetected ? 85 : 10); // Mock score weighting or read from session if added to report later
         setScamDetected(sessionReport.scamDetected);
-        
+
         // Extract category heuristics or updates
         if (sessionReport.scamDetected) {
           setScamCategory("phishing_threat"); // Default visual fallback
@@ -163,7 +176,7 @@ export default function Home() {
         } else {
           addLog("STATE ALIGNMENT: NO THREAT ASSESSED.");
         }
-        
+
         // Map extracted variables
         const intel = sessionReport.extractedIntelligence;
         setIntelligence({
@@ -182,13 +195,13 @@ export default function Home() {
         text: responseData.reply,
         timestamp: Date.now()
       };
-      
+
       setMessages((prev) => [...prev, agentMsg]);
-      
+
       // OODA State: ACT
       setOodaState("act");
       addLog(`ACTING RESPONSE: GENERATED BELIEVABLE PERSONA ENGAGEMENT`);
-      
+
       // Complete loop back to idle
       setTimeout(() => {
         setOodaState("idle");
@@ -214,10 +227,10 @@ export default function Home() {
   // Close Session and dispatch final report callback
   const handleCloseSession = async () => {
     if (!sessionId || sessionStatus !== "active") return;
-    
+
     setIsClosing(true);
     addLog(`INITIATING REPORT COMPILATION FOR SESSION: ${sessionId}`);
-    
+
     try {
       const res = await fetch(`${API_BASE_URL}/api/v1/sessions/${sessionId}/close`, {
         method: "POST",
@@ -229,12 +242,12 @@ export default function Home() {
       if (!res.ok) {
         throw new Error(`Close session request failed: status ${res.status}`);
       }
-      
+
       const report = await res.json();
       setSessionStatus("completed");
       setCallbackSuccess(true);
       addLog(`REPORT DISPATCH SUCCESS: GUVI CALLBACK RETURNED CODE 200`);
-      
+
       setMessages((prev) => [
         ...prev,
         {
@@ -278,7 +291,7 @@ export default function Home() {
       suspiciousKeywords: [],
       agentNotes: ""
     });
-    
+
     // Auto submit message
     handleSendMessage(initialMessage);
   };
@@ -353,3 +366,4 @@ export default function Home() {
     </main>
   );
 }
+
