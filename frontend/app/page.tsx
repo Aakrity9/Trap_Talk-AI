@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+
 import DiagnosticsPanel from "@/components/DiagnosticsPanel";
 import ChatTerminal from "@/components/ChatTerminal";
 import IntelligencePanel from "@/components/IntelligencePanel";
@@ -23,6 +24,22 @@ interface IntelligenceData {
   phoneNumbers: string[];
   suspiciousKeywords: string[];
   agentNotes?: string;
+}
+
+function PWARequestHandler({ onTriggerAnalysis }: { onTriggerAnalysis: (text: string) => void }) {
+  const searchParams = useSearchParams();
+  const sharedText = searchParams.get("shared_text");
+
+  useEffect(() => {
+    if (sharedText) {
+      const decoded = decodeURIComponent(sharedText);
+      if (onTriggerAnalysis) {
+        onTriggerAnalysis(decoded);
+      }
+    }
+  }, [sharedText, onTriggerAnalysis]);
+
+  return null;
 }
 
 export default function Home() {
@@ -296,11 +313,21 @@ export default function Home() {
     handleSendMessage(initialMessage);
   };
 
+  const triggerAutoAnalysisFromPWA = (sharedText: string) => {
+    addLog(`PWA SHARE TARGET CAPTURED TEXT SUCCESS`);
+    handleSendMessage(sharedText);
+  };
+
   return (
     <main className="h-screen w-screen flex flex-col hud-canvas overflow-hidden select-none">
       {/* HUD HEADER NAVBAR */}
       <header className="h-14 border-b border-accent-muted bg-bg-panel flex items-center justify-between px-6 z-10 shadow-md">
         <div className="flex items-center space-x-4">
+
+          <Suspense fallback={<p className="text-[10px] text-zinc-500 font-mono">SYNCING...</p>}>
+            <PWARequestHandler onTriggerAnalysis={triggerAutoAnalysisFromPWA} />
+          </Suspense>
+
           <span className="font-orbitron font-black text-lg text-accent-neon tracking-widest glow-text-green">
             TRAP_TALK_AI
           </span>
