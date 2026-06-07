@@ -69,19 +69,6 @@ export default function Home() {
   // Logs & Orchestrator States
   const [logs, setLogs] = useState<string[]>([]);
   const [oodaState, setOodaState] = useState<"observe" | "orient" | "decide" | "act" | "idle">("idle");
-  const searchParams = useSearchParams();
-  const sharedText = searchParams.get("shared_text");
-
-  useEffect(() => {
-    if (sharedText) {
-      const decodedText = decodeURIComponent(sharedText);
-      addLog(`PWA SHARE TARGET CAPTURED: "${decodedText.substring(0, 30)}..."`);
-
-
-      handleSendMessage(decodedText);
-    }
-  }, [sharedText]);
-
   // Clock synchronization
   useEffect(() => {
     const updateTime = () => {
